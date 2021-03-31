@@ -90,8 +90,8 @@ class WebGlRender {
         this.rendering(scene,camera);
         this.shadowPrev = this.useShadow;
 
-        this.gl.enable(this.gl.BLEND);
-        this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);   
+        // this.gl.enable(this.gl.BLEND);
+        // this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);   
         // this.gl.clearDepth(1.0); 
         // смешивание вкл
 
