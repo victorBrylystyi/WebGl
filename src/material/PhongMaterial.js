@@ -15,9 +15,6 @@ const  newShdrsProg ={
         uniform mat4 viewMatrix;
         uniform mat4 projMatrix;
 
-        uniform mat4 viewLightMatrix;
-        uniform mat4 projLightMatrix;
-
         uniform mat4 invTranspModelMatrix;
 
         varying highp vec2 vTextureCoord;
@@ -25,14 +22,7 @@ const  newShdrsProg ={
         varying vec3 world_Vertex;
         varying vec3 world_Normal;
 
-        varying vec3 v_lightPos;
-
         void main() {
-
-            //vec4 lightPos = projLightMatrix * viewLightMatrix * modelMatrix * vec4(a_Position.xyz,1.0);
-            // vec3 lightPosDNC = lightPos.xyz/lightPos.w;
-            // v_LightPos = vec3(0.5,0.5,0.5) + lightPosDNC * 0.5; //  -1 >> +1   //  0 >> +1
-
             gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(a_position.xyz,1.0);
             vTextureCoord = aTextureCoord;
             world_Vertex = (modelMatrix * vec4(a_position.xyz,1.0)).xyz;
@@ -55,10 +45,8 @@ const  newShdrsProg ={
             uniform sampler2D secondMap;
         #endif
 
-        uniform bool u_CameraShadow;
-
         varying highp vec2 vTextureCoord;
-        //varying vec3 v_lightPos;
+
 
         uniform float k_vertex;
 
@@ -89,20 +77,6 @@ const  newShdrsProg ={
 
 
         void main() {
-
-            // vec4 shadowMapColor = texture2D(secondMap, v_lightPos.xy).rgb;
-            // float z_ShadowMap = shadowMapColor.r;
-
-             float thisShadow = 1.0;  // коэф затенения 
-
-            // if (z_ShadowMap + 0.01 < v_lightPos.z){ 
-            //     thisShadow = 0.3;
-            // }
-
-            // if (u_CameraShadow){  // для переключения камеры что бы увидеть карту теней 
-            //     gl_FragColor = vec4(z_ShadowMap,z_ShadowMap,z_ShadowMap,1.);
-            //     return;
-            // }
 
             ambient_color = u_ambLightColor * u_ambIntensity; // фоновое освещение 1 на всю сцену
 
@@ -139,7 +113,6 @@ const  newShdrsProg ={
             color = ambient_color; 
             color += vertexColor.rgb * diffuse_color; //
             color += specular_color;
-            color *= thisShadow;
 
             gl_FragColor = vec4(color, v_color.a);
         }

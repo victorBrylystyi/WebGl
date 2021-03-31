@@ -17,11 +17,14 @@ class NewMesh {
         this.updateMeshMatrix();
     }
     drawMesh(gl,camera,light,material){
+
         let currentM = material || this.material;
+        //console.log(currentM);
         this.checkProgram(gl,currentM); // создание программы если нет 
         this.checkShaders(gl,currentM); // создание шейдеров если нет 
             if (currentM.needCreateProgram){  // первое создание программы
                 this.createNewProgram(gl,currentM);
+                console.log(currentM);
             }
             if (currentM.needsRecompile && !currentM.needCreateProgram){ // рекомпиляция если изменилась логика шейдера 
                 this.copmileProgram(gl,currentM);
@@ -169,6 +172,7 @@ class NewMesh {
                         break;
                         case 'mat4':
                             gl.uniformMatrix4fv(uData.locations[key], false, material[key]);
+                            //console.log(1);
                         break;
                         case 'sampler2D':
 

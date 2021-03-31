@@ -177,7 +177,6 @@ function main (image1,image2){
         shadowMap: false,
       },
     },
-
   };
   ui.directionalLigth.mainFolder.add(light2,'shininess',0,400,10);
   ui.pointLight.mainFolder.add(light3,'shininess',0,400,10);

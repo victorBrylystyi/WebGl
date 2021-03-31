@@ -66,8 +66,8 @@ class Scene {
             //     console.log(this.meshs[i]);
             // }
             //this.needUpdate = false;
-            console.log(this.ref);
-            //console.log(this.meshs);
+            //console.log(this.ref);
+            console.log(this.meshs);
             this.needUpdate = false;
         }
         // if (this.needChekProg){

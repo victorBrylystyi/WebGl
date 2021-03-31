@@ -4,6 +4,7 @@ import { ShadowMaterial } from "./material/ShadowMaterial";
 import { Texture } from "./material/Texture";
 import { ProgramRules } from "./program/ProgramRules";
 import { FP, FN } from "./index";
+import { ShadowDrawMaterail } from "./material/ShadowDrawMaterial";
 
 class WebGlRender {
     constructor (canvas){
@@ -11,22 +12,32 @@ class WebGlRender {
         this.getContext();
         this.frameBuffer = null;
         this.depthBuffer = null;
-        this.tergetTexture = null;
+        this.targetTexture = null;
         this.useShadow = false; 
-        this.shadowPrev = false;
         this.superMaterial = null;
         this.shadowMaterial = null;
+        this.shadowDraw = null;
     }
-    rendering(scene,camera){    
+    rendering(scene,camera,activeBuffer,sceneActiveMaterial){    
+        scene.ref = sceneActiveMaterial;
+
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,activeBuffer);  // bind current frameBuffer 
+
         this.clearScreen(scene.background); 
         this.update(scene,camera); 
         this.draw(scene,camera); 
+
+        this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null);
     }
     render(scene,camera,shadowCamera){
-        if (this.useShadow){ // if render to texture 
-            if (!this.superMaterial){ // create SuperMaterial 
-                this.superMaterial = new PhongMaterial({map:new Texture()});
-            }
+        if (shadowCamera){ // потом через useShadow
+            shadowCamera.updateCameraMtrx();
+        }
+        if (this.useShadow||true){ // if render to texture 
+            // if (!this.superMaterial){ // create SuperMaterial 
+            //     this.superMaterial = new PhongMaterial({map:new Texture()});
+            // }
             if (!this.shadowMaterial){
                 this.shadowMaterial = new ShadowMaterial();
             }
@@ -59,47 +70,49 @@ class WebGlRender {
                 this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_COMPONENT16, this.targetTexture.width, this.targetTexture.height);
                 this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, this.depthBuffer);      
             }
-            scene.ref = this.shadowMaterial;
 
-            this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.frameBuffer);  // bind current frameBuffer 
             this.gl.viewport(0, 0, this.targetTexture.width, this.targetTexture.height);
-            //camera.perspectiveSett.aspect = this.targetTexture.width/this.targetTexture.height;
-            this.rendering(scene,shadowCamera);  
-
-            this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-            this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null);
-
-            if (FP(this.useShadow,this.shadowPrev)){
-                this.superMaterial.map = this.targetTexture;
-            }
-
-            scene.ref = this.superMaterial;
-
-            for (let i=0;i<scene.meshs.lenght;i++){
-                scene.meshs[i].material.viewLightMatrix = shadowCamera.viewMatrix;
-                scene.meshs[i].material.projLightMatrix = shadowCamera.projMatrix;
-            }
+            this.rendering(scene,shadowCamera,this.frameBuffer,this.shadowMaterial);  
         }
+
         // render to canvas 
-        if (FN(this.useShadow,this.shadowPrev)){
-            scene.ref = null;
+
+        if (!this.shadowDraw){
+            this.shadowDraw = new ShadowDrawMaterail({map:this.targetTexture});
+            this.shadowDraw.v_color = [0.0,1.0,0.0,1.0];
         }
-        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);             // в рендеринг 
+        this.shadowDraw.viewLightMatrix = shadowCamera.viewMatrix;
+        this.shadowDraw.projLightMatrix = shadowCamera.projMatrix;
+
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
-        //camera.perspectiveSett.aspect = this.canvas.width/this.canvas.height;
-        this.rendering(scene,camera);
-        this.shadowPrev = this.useShadow;
+        this.rendering(scene,camera,null,this.shadowDraw);
 
-        this.gl.enable(this.gl.BLEND);
-        this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);   
-        // this.gl.clearDepth(1.0); 
-        // смешивание вкл
+        // if (!this.shadowDraw){
+        //     this.shadowDraw = new ShadowDrawMaterail({map:this.targetTexture});
+        // }
+        // this.shadowDraw.map = this.targetTexture;
+        // scene.ref = this.shadowDraw; // новый материал  
+        // this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
+        // camera.perspectiveSett.aspect = this.canvas.width/this.canvas.height;
+        // this.rendering(scene,camera,null);
 
-        // scene.ref = this.shadowMaterial2; // новый материал  
-           //this.rendering(scene,camera);  
-        //  
+        // if (this.useShadow){
+        //     this.gl.enable(this.gl.BLEND);   // смешивание вкл
+        //     this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);   //this.gl.SRC_COLOR this.gl.DST_COLOR
+        //     this.gl.getParameter(this.gl.BLEND_SRC_RGB) == this.gl.SRC_COLOR;
+        //     this.gl.clearDepth(1.0); 
 
-         // смешивание выкл
+        //     if (!this.shadowDraw){
+        //         this.shadowDraw = new ShadowDrawMaterail({map:this.targetTexture});
+        //     }
+
+        //     scene.ref = this.shadowDraw; // новый материал  
+        //     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
+        //     camera.perspectiveSett.aspect = this.canvas.width/this.canvas.height;
+        //     this.rendering(scene,camera,null);
+
+        //     this.gl.disable(this.gl.BLEND); // смешивание выкл
+        // }
     }
     update(scene,camera){
         scene.update(this.gl);
