@@ -49,6 +49,14 @@ class Matrix {
           0,0,0,1
         ];
       }
+      identity(){
+        return [
+          1,0,0,0,
+          0,1,0,0,
+          0,0,1,0,
+          0,0,0,1,
+        ];
+      }
       translate(data=0){
         let t = new Coordinates3D(data.x,data.y,data.z);
         return[
@@ -57,6 +65,9 @@ class Matrix {
           0,0,1,0,
           t.x,t.y,t.z,1
         ];
+      }
+      translation(m, data) {
+        return this.multiply(m, this.translate(data));
       }
       xRotation(a=0) {
         let c = Math.cos(a);
@@ -279,10 +290,10 @@ class Matrix {
                 a[0] * b[1] - a[1] * b[0]];
       }
       lookAt(cameraPosition, target, up){
-          var zAxis = this.normalize(
+          let zAxis = this.normalize(
               this.subtractVectors(cameraPosition, target));
-          var xAxis = this.normalize(this.cross(up, zAxis));
-          var yAxis = this.normalize(this.cross(zAxis, xAxis));
+          let xAxis = this.normalize(this.cross(up, zAxis));
+          let yAxis = this.normalize(this.cross(zAxis, xAxis));
       
           return [
              xAxis[0], xAxis[1], xAxis[2], 0,
@@ -293,7 +304,7 @@ class Matrix {
              cameraPosition[2],
              1,
           ];
-        }
+      }
       
 }
 

@@ -32,7 +32,6 @@ class NewMesh {
         gl.useProgram(currentM.ref); 
         this.setUniform(gl,currentM.programRef.uniforms,this.modelMatrix,camera,light,currentM,this.invTranspModelMatrix);
         this.setAttribute(gl,currentM.programRef.attributes,this.geometry);
-
         gl.drawArrays(gl.TRIANGLES, 0, this.geometry.solid.info.numVertex);
     }
     createNewProgram(gl,material){
@@ -155,6 +154,9 @@ class NewMesh {
                 case 'k_vertex':  
                     gl.uniform1f(uData.locations[key], light.source.k_vertex);
                 break;
+                case 'alpha':  
+                gl.uniform1f(uData.locations[key], material[key]);
+                break;
                 // все ниже автоматизировать (дефолтный кейс)
                 default: 
                     if (!material[key]){
@@ -197,7 +199,7 @@ class NewMesh {
                                     }
                                     material[key].needRedraw = false;
                                 }
-                                gl.uniform1i(uData.locations[key], 0+cntrSampler);// Внимание, тут ref из Uniform материала -> uniformsList[uniformName].ref
+                                gl.uniform1i(uData.locations[key], 0+cntrSampler);// Внимание, тут ref из Uniform материала -> uniformsList[uniformName].ref         
                         break;   
                     }
                 break;

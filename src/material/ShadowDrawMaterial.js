@@ -39,6 +39,8 @@ const drawShadowShader = {
 
         vec3 color = vec3(1.0,1.0,1.0);
 
+        float bias = 0.005;
+
         void main() {
 
             #ifdef USE_MAP
@@ -47,9 +49,12 @@ const drawShadowShader = {
 
                 float z_ShadowMap = shadowMapColor.r;
 
-                if (z_ShadowMap + 0.01 < v_lightPos.z){ 
-                    thisShadow = 0.3;
+                if (z_ShadowMap + bias <= v_lightPos.z){ 
+                    thisShadow = 0.01;
                 }
+
+                //(z_ShadowMap + bias<v_lightPos.z) ? thisShadow = 0.3 : thisShadow = 1.0;
+
             #endif
 
             #ifdef USE_COLOR
@@ -59,6 +64,8 @@ const drawShadowShader = {
             color *= thisShadow;
 
             gl_FragColor = vec4(color,1.0);
+            //gl_FragColor = vec4(thisShadow);
+           //gl_FragColor = vec4(vec3(v_lightPos.z,v_lightPos.z,v_lightPos.z),1.0);
         }
 `,  
 };

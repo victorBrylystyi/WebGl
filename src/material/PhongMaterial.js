@@ -47,6 +47,8 @@ const  newShdrsProg ={
 
         varying highp vec2 vTextureCoord;
 
+        uniform float alpha;
+
 
         uniform float k_vertex;
 
@@ -76,6 +78,8 @@ const  newShdrsProg ={
         vec3 vertexColor = vec3(1.0, 1.0, 1.0);
 
 
+
+
         void main() {
 
             ambient_color = u_ambLightColor * u_ambIntensity; // фоновое освещение 1 на всю сцену
@@ -83,7 +87,10 @@ const  newShdrsProg ={
                 vec3 normal = normalize(world_Normal);
                 float k = clamp(k_vertex, 0.0, 1.0);
 
-                vec3 to_light = u_lightWorldPosition - k * world_Vertex;
+                //vec3 to_light = u_lightWorldPosition - k * world_Vertex;
+
+                vec3 to_light = k * world_Vertex - u_lightWorldPosition;
+
                 to_light = normalize(to_light);
 
                 float cos_angle = dot(normal,to_light); 
@@ -91,7 +98,10 @@ const  newShdrsProg ={
 
             diffuse_color = cos_angle * u_lightColor * u_intensity;  
 
-                vec3 to_View = u_viewWorldPosition -  k * world_Vertex;//
+                //vec3 to_View = u_viewWorldPosition -  k * world_Vertex;//
+
+                vec3 to_View = k * world_Vertex - u_viewWorldPosition;//
+
                 to_View = normalize(to_View);
 
                 vec3 halfVector = normalize(to_View + to_light);
@@ -100,6 +110,7 @@ const  newShdrsProg ={
 
             #ifdef USE_MAP
                 vertexColor *= texture2D(map, vTextureCoord).rgb;
+
             #endif
 
             #ifdef USE_SECONDMAP
@@ -114,7 +125,7 @@ const  newShdrsProg ={
             color += vertexColor.rgb * diffuse_color; //
             color += specular_color;
 
-            gl_FragColor = vec4(color, v_color.a);
+            gl_FragColor = vec4(color, v_color.a * alpha);
         }
     `,
 };

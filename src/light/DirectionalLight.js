@@ -19,21 +19,21 @@ class DirectionalLight extends CoreLight{
         this.specularInt = 1.0;
         this.shininess = 10.0;
         this.k_vertex = 0.0;
-
+        this._target = null;
     }
-    addTarget(target){
-        this.target = new Coordinates3D(target[0],target[1],target[2]);
+    set target (target){
+        this._target = new Coordinates3D(target[0],target[1],target[2]);
+    }
+    get target (){
+        return this._target;
     }
     update(){
-        if (this.target == undefined){
+        if (!this.target){
             this.position = Object.values(this.worldPosition);
         } else {
-            this.position = new Matrix().subtractVectors(Object.values(this.target),Object.values(this.worldPosition)); 
+            this.position = new Matrix().subtractVectors(Object.values(this._target),Object.values(this.worldPosition)); 
         }
-        //console.log(this.position);
     }
-
-
 }
 
 export { DirectionalLight };

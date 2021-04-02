@@ -16,6 +16,7 @@ class BoxGeometry extends CoreGeometry{
         let frontRect = new RectangularGeometry(this.w,this.h,this.start.x,this.start.y,this.d/2);
         let backRect = new RectangularGeometry(this.w,this.h,this.start.x,this.start.y,-(this.d/2));
 
+
 //--------------- TOP -----------------------------
         let topX0 = frontRect.cord[0];
         let topY0 = frontRect.cord[1];
@@ -33,14 +34,15 @@ class BoxGeometry extends CoreGeometry{
         let topY3 = backRect.cord[4];
         let topZ3 = backRect.cord[5];
 
-        let topVertex =  [
-            topX0,topY0,topZ0,
-            topX1,topY1,topZ1,
+
+        let topVertex =  [   //2 v
             topX2,topY2,topZ2,
-      
-            topX2,topY2,topZ2,
-            topX1,topY1,topZ1,
             topX3,topY3,topZ3,
+            topX0,topY0,topZ0,
+
+            topX0,topY0,topZ0,
+            topX3,topY3,topZ3,
+            topX1,topY1,topZ1,
         ];
 //--------------- Bottom -----------------------------
         let bottomX0 = frontRect.cord[9];
@@ -59,7 +61,7 @@ class BoxGeometry extends CoreGeometry{
         let bottomY3 = backRect.cord[16];
         let bottomZ3 = backRect.cord[17];
 
-        let bottomVertex =  [
+        let bottomVertex =  [          // +1st v
             bottomX0,bottomY0,bottomZ0,
             bottomX1,bottomY1,bottomZ1,
             bottomX2,bottomY2,bottomZ2,
@@ -68,16 +70,20 @@ class BoxGeometry extends CoreGeometry{
             bottomX1,bottomY1,bottomZ1,
             bottomX3,bottomY3,bottomZ3,
         ];
-        let leftVertex =  [
-            topX0,topY0,topZ0,
-            topX2,topY2,topZ2,
-            bottomX0,bottomY0,bottomZ0,
+ 
 
-            bottomX0,bottomY0,bottomZ0,
+
+        let leftVertex =  [    //2 v
             topX2,topY2,topZ2,
+            topX0,topY0,topZ0,
             bottomX2,bottomY2,bottomZ2,
+
+            bottomX2,bottomY2,bottomZ2,
+            topX0,topY0,topZ0,
+            bottomX0,bottomY0,bottomZ0,
         ];
-        let rightVertex =  [
+
+        let rightVertex =  [     //+ 1st v
             topX1,topY1,topZ1,
             topX3,topY3,topZ3,
             bottomX1,bottomY1,bottomZ1,
@@ -86,6 +92,16 @@ class BoxGeometry extends CoreGeometry{
             topX3,topY3,topZ3,
             bottomX3,bottomY3,bottomZ3,
         ];
+
+        let backVert = [
+            topX3,topY3,topZ3,
+            topX2,topY2,topZ2,
+            bottomX3,bottomY3,bottomZ3,
+
+            bottomX3,bottomY3,bottomZ3,
+            topX2,topY2,topZ2,
+            bottomX2,bottomY2,bottomZ2,
+        ]
 
         const mapCord2D = [
             0.0,  0.0,
@@ -152,7 +168,7 @@ class BoxGeometry extends CoreGeometry{
 
         this.partsGeometry = [
             this.createGeometry('part',frontRect.cord,mapCord2D,frontNormals),
-            this.createGeometry('part',backRect.cord,mapCord2D,backNormals),
+            this.createGeometry('part',backVert,mapCord2D,backNormals),//backRect.cord
             this.createGeometry('part',topVertex,mapCord2D,topNormals),
             this.createGeometry('part',bottomVertex,mapCord2D,bottomNormals),
             this.createGeometry('part',leftVertex,mapCord2D,leftNormals),
