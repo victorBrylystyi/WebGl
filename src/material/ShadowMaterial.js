@@ -18,6 +18,8 @@ const shadersShadow = {
             vec4 position = projMatrix * viewMatrix * modelMatrix * vec4(a_position.xyz,1.0);
 
             depth = pack_depth(0.5*(position.z/position.w)+0.5);
+            float buf = position.z/position.w;
+            v_depth = 0.5*buf +0.5;
 
             gl_Position = position;
         }
@@ -42,7 +44,7 @@ const shadersShadow = {
             float rsltDepth = unpack_depth(depth);
             gl_FragColor = vec4(rsltDepth,rsltDepth,rsltDepth,1.0);
             //gl_FragColor = vec4(v_depth,v_depth,v_depth,1.0);
-            //gl_FragColor = vec4(v_depth,0.0,0.0,1.0);
+            //gl_FragColor = vec4(v_depth,v_depth,v_depth,1.0);
         }
         float unpack_depth(const in vec4 rgba_depth) {
             const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);

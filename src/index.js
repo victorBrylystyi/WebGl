@@ -96,18 +96,34 @@ function main (image1,image2){
   let camera = new Camera('perspective'); 
   let shadowCamera = new Camera('ortho');
   let orthoCamera2 = new Camera('ortho');
+  let testOrt = new Camera('ortho');
 
   //camera.useRotationAroundTarget = true;
   //camera.useLookAt = true;
  camera.target = [0,0,-500];
 
-  shadowCamera.ortographicSett.right = canvas.width/2;
-  shadowCamera.ortographicSett.bottom = canvas.height/2;
-  shadowCamera.ortographicSett.left = -canvas.width/2;
-  shadowCamera.ortographicSett.top = -canvas.height/2;
+  // shadowCamera.ortographicSett.right = canvas.width/2;
+  // shadowCamera.ortographicSett.bottom = canvas.height/2;
+  // shadowCamera.ortographicSett.left = -canvas.width/2;
+  // shadowCamera.ortographicSett.top = -canvas.height/2;
+
+  shadowCamera.ortographicSett.right = canvas.width;
+  shadowCamera.ortographicSett.bottom = canvas.height;
+  shadowCamera.ortographicSett.left = 0;
+  shadowCamera.ortographicSett.top = 0;
+
   //shadowCamera.ortographicSett.near = -6000;
   shadowCamera.ortographicSett.near = 0.01;
   shadowCamera.ortographicSett.far = 6000;
+
+
+  testOrt.ortographicSett.right = canvas.width/2;
+  testOrt.ortographicSett.bottom = canvas.height/2;
+  testOrt.ortographicSett.left = -canvas.width/2;
+  testOrt.ortographicSett.top = -canvas.height/2;
+  testOrt.ortographicSett.near = -3000;
+  testOrt.ortographicSett.far = 6000;
+
 
   orthoCamera2.ortographicSett.right = 1;//canvas.width;
   orthoCamera2.ortographicSett.bottom = 1;//canvas.height;
@@ -115,7 +131,7 @@ function main (image1,image2){
   orthoCamera2.ortographicSett.top = 0;
   //orthoCamera.ortographicSett.near = -6000;
   orthoCamera2.ortographicSett.near = -1;
-  orthoCamera2.ortographicSett.far = 1000;
+  orthoCamera2.ortographicSett.far = 1;
 
   camera.perspectiveSett.zFar = 6000;
   camera.perspectiveSett.aspect = canvas.width/canvas.height;
@@ -131,7 +147,7 @@ function main (image1,image2){
   let planeGeometry2 = new PlaneGeometry(1,1);//
   let planematerial = new PhongMaterial({map:new Texture(image2)});
   //let planematerial2 = new PhongMaterial({map:new Texture(image2)});
-  let planematerial2 = new BasicMaterial({map:new Texture(image2)});
+  let planematerial2 = new BasicMaterial({color:WHITE});
   //let planematerial = new PhongMaterial({color: WHITE});
   let boxMaterialv4 = new PhongMaterial({color:RED});//map:new Texture(image1),
   let boxMaterialv5 = new PhongMaterial({color:RED});//map:new Texture(image1),
@@ -140,9 +156,10 @@ function main (image1,image2){
   let plane2 = new NewMesh(planeGeometry2,planematerial2);
   let box = new NewMesh(boxGeom,boxMaterialv4);
   let box2 = new NewMesh(boxGeom2,boxMaterialv5);
+
   let scene = new Scene();
   let scene2 = new Scene();
-  
+
   scene.background = BLACK;
   scene2.background = BLACK;
   
@@ -157,7 +174,8 @@ function main (image1,image2){
     light2.color = [1.0, 1.0, 1.0];
     light2.shininess = 200.0;
     light2.intensity = 1.0;
-    light2.target = [-180,-330,-60];
+    //light2.target = [-180,-330,-60];
+    light2.target = [0,0,-500];
 
   const light3 = new PointLight();
     light3.color = [1.0, 1.0, 1.0];
@@ -306,16 +324,21 @@ function main (image1,image2){
   // scene2.add(light2);
   scene2.add(plane2);
 
+  plane2.position.x = 0;
+  plane2.position.y = 0;
+  plane2.position.z = 0;
+  plane2.scale.x = 1;
+  plane2.scale.y = 1;
+
   plane.position.x = 0;
   plane.position.y = -300;
   plane.position.z = -500;
+  //plane.position.z = 0;
   
   plane.rotation.x = Math.PI/2;//180;
   //plane.rotation.x = 2*Math.PI;//180;
-  plane.scale.x = 4;
-  plane.scale.y = 4;
-
-
+  plane.scale.x = 2;
+  plane.scale.y = 2;
   
   shadowCamera.useLookAt = true;
   
@@ -334,10 +357,14 @@ function main (image1,image2){
     fi += 0.005*dT;
 
     camera.fi = fi;
+
+    //ortCam.position.x = -fi;
+
   
     box.position.x = 0;//canvas.width/2;
     box.position.y = 0;//canvas.height/2;
     box.position.z = -500;//Math.sin(fi)*1500;
+    //box.position.z = 0;//Math.sin(fi)*1500;
 
     box2.position.x = 0;//canvas.width/2;
     box2.position.y = 0;//canvas.height/2;
@@ -362,6 +389,11 @@ function main (image1,image2){
   
 
     shadowCamera.target = Object.values(light2.target);
+    // shadowCamera.ortographicSett.right = canvas.width;
+    // shadowCamera.ortographicSett.bottom = canvas.height;
+    // shadowCamera.ortographicSett.left = -canvas.width;
+    // shadowCamera.ortographicSett.top = -canvas.height;
+
     shadowCamera.ortographicSett.right = canvas.width/2;
     shadowCamera.ortographicSett.bottom = canvas.height/2;
     shadowCamera.ortographicSett.left = -canvas.width/2;
@@ -370,26 +402,11 @@ function main (image1,image2){
     camera.perspectiveSett.aspect = canvas.width/canvas.height;
   
     renderer.render(scene,camera,shadowCamera,scene2,orthoCamera2); // рисуем главную сцену 
-    //renderer.render(scene2,orthoCamera2,orthoCamera); // рисуем главную сцену 
     
     tPrev = window.performance.now();
   
     requestAnimationFrame(render);
   }
 }
-
-/* shadow
-    //renderer.activeFrameBuffer = depth_Buffer;
-    renderer.activeFrameBuffer = true;
-
-    //scene.material = depth.material
-    //renderer.render(scene,orthoCamera,depth_Buffer); // отрисовали текстуру 
-
-    //renderer.activeFrameBuffer = null; // отвязываем текстуру 
-    renderer.activeFrameBuffer = false;
-
-       // renderer.render(scene2,camera); // орто сцена для дебага 
-*/
-
 
 

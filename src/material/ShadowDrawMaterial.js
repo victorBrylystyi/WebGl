@@ -19,7 +19,7 @@ const drawShadowShader = {
 
         vec4 lightPos = projLightMatrix * viewLightMatrix * modelMatrix * vec4(a_position.xyz,1.0);
         vec3 lightPosDNC = lightPos.xyz/lightPos.w;
-        v_lightPos = vec3(0.5,0.5,0.5) + lightPosDNC * 0.5; //  -1 >> +1   //  0 >> +1
+        v_lightPos = vec3(0.5,0.5,0.5) + lightPosDNC * vec3(0.5,0.5,0.5); //  -1 >> +1   //  0 >> +1
     }
 `,
     fragment: `
@@ -35,11 +35,11 @@ const drawShadowShader = {
 
         varying vec3 v_lightPos;
 
-        float thisShadow = 1.0;  // коэф затенения 
+        //float thisShadow = 1.0;  // коэф затенения 
 
         vec3 color = vec3(1.0,1.0,1.0);
 
-        float bias = 0.005;
+        float bias = 0.007;
 
         void main() {
 
@@ -49,11 +49,12 @@ const drawShadowShader = {
 
                 float z_ShadowMap = shadowMapColor.r;
 
-                if (z_ShadowMap + bias <= v_lightPos.z){ 
-                    thisShadow = 0.01;
-                }
+                // if (z_ShadowMap + bias <= v_lightPos.z){ 
+                //     thisShadow = 0.01;
+                // }
 
-                //(z_ShadowMap + bias<v_lightPos.z) ? thisShadow = 0.3 : thisShadow = 1.0;
+                float thisShadow = v_lightPos.z - bias > z_ShadowMap ? 0.01 : 1.0;
+
 
             #endif
 
@@ -66,6 +67,7 @@ const drawShadowShader = {
             gl_FragColor = vec4(color,1.0);
             //gl_FragColor = vec4(thisShadow);
            //gl_FragColor = vec4(vec3(v_lightPos.z,v_lightPos.z,v_lightPos.z),1.0);
+           //gl_FragColor = vec4(vec3(z_ShadowMap,z_ShadowMap,z_ShadowMap),1.0);
         }
 `,  
 };

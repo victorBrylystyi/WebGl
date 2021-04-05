@@ -19,6 +19,7 @@ class WebGlRender {
         this.superMaterial = null;
         this.shadowMaterial = null;
         this.shadowDraw = null;
+        this.testMaterial = null;
     }
     rendering(scene,camera,activeBuffer,sceneActiveMaterial,clearColor){    
         
@@ -49,7 +50,7 @@ class WebGlRender {
             if (this.targetTexture && this.targetTexture.needRedraw){ // if need redraw target texture 
                 this.gl.bindTexture(this.gl.TEXTURE_2D, this.targetTexture.ref);
 
-                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+                //this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
                 this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
                 this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
                 this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
@@ -75,14 +76,14 @@ class WebGlRender {
         }
 
         // render to canvas 
+        if (!this.testMaterial){
+            this.testMaterial = new BasicMaterial ({map:this.targetTexture});
+        }
 
 
-
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
-        this.rendering(scene,camera,null,null,true);
-
-        // this.gl.clearDepth(1.0); 
-        // this.gl.enable(this.gl.BLEND);
+        // this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
+        // this.rendering(scene,camera,null,null,true);
+        //this.rendering(scene,shadowCamera,null,this.testMaterial,true); // test scene
 
         // исходный фрагмент - тот который рисуется сейчас 
         // целевой - тот который находится во фреймбуфере 
@@ -91,10 +92,6 @@ class WebGlRender {
 
         //исходным множителем является значение цвета исходного фрагмента
         // целевой множитель - значение цвета целевого фрагмента
-
-        // this.gl.disable(this.gl.BLEND); // смешивание выкл
-
-
 
         // отрисовать в текстуру результат ShadowDrawMaterail({map: текстура глубины отрисованая ранее}) который расчитывает тень 
         // при отрисовке главной сцены вкл смешивание 
@@ -108,15 +105,15 @@ class WebGlRender {
         this.shadowDraw.projLightMatrix = shadowCamera.projMatrix;
 
         if (!this.targetTextureShadow){ // if no target texture 
-            this.targetTextureShadow = new Texture(null,this.canvas.width,this.canvas.height);
+            this.targetTextureShadow = new Texture(null,2048,2048);//this.canvas.width,this.canvas.height
             this.targetTextureShadow.image = null;
             this.targetTextureShadow.ref = this.gl.createTexture();
         }
         if (this.targetTextureShadow && this.targetTextureShadow.needRedraw){ // if need redraw target texture 
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.targetTextureShadow.ref);
 
-            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
 
@@ -137,11 +134,18 @@ class WebGlRender {
             this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, this.depthBufferDraw);      
         }
         this.gl.viewport(0, 0, this.targetTextureShadow.width, this.targetTextureShadow.height);
-        this.rendering(scene,camera,this.frameBufferDraw,this.shadowDraw,true);  
+        this.rendering(scene,camera,this.frameBufferDraw,this.shadowDraw,true);
+   
 
         if (!this.superMaterialShadow){
             this.superMaterialShadow = new BasicMaterial({map:this.targetTextureShadow});//this.targetTextureShadow
         }  
+
+        // this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // test
+        // this.rendering(scene,camera,null,this.superMaterialShadow,true);
+
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); // в рендеринг 
+        this.rendering(scene,camera,null,null,true);
 
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
@@ -150,6 +154,7 @@ class WebGlRender {
         this.rendering(orthoScene,cam2,null,this.superMaterialShadow,false); // отросцена отрокамера 
 
         this.gl.disable(this.gl.BLEND);
+
     }
     update(scene,camera){
         scene.update(this.gl);
